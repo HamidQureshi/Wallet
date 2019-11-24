@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Wallet</string>
+
+    <string name="lbl_balance">Balance:</string>
+    <string name="placeholder_balance">0.0 BTC</string>
+
+    <string name="lbl_transactions">Transactions:</string>
+
+    <string name="lbl_fee">Fee:</string>
+    <string name="placeholder_fee">0.0 BTC</string>
+
+    <string name="lbl_time">Transaction Time:</string>
+    <string name="placeholder_time">09&#8211;09&#8211;2018 01:05:48</string>
+
+    <string name="lbl_amount">Amount:</string>
+    <string name="placeholder_amount">-0.0 BTC</string>
+
+</resources>
