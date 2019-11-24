@@ -29,3 +29,6 @@ Testing
 * Espresso
 * Idling Resources
 
+CI
+* Circle CI
+
