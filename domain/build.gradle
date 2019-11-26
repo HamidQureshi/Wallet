@@ -13,6 +13,9 @@ dependencies {
 
     testImplementation libsCommon.junit
     testImplementation libsCommon.mockitoKotlin
+
+    api libsCommon.gson
+
 }
 
 buildscript {

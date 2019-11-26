@@ -11,11 +11,12 @@ import kotlin.collections.ArrayList
 /**
  * Maps between Room database entity and model.
  */
-class TransactionModelMapperImpl : TransactionModelMapper<List<Transaction>, Response> {
-    override fun fromEntity(from: List<Transaction>) =
+class PresentationTransactionModelMapperImpl :
+    TransactionModelMapper<List<TransactionDBModel>, Response> {
+    override fun fromEntity(from: List<TransactionDBModel>) =
         convertResponseForUI(formatTransactions(from))
 
-    fun formatTransactions(transactions: List<Transaction>): List<TransactionFormatted> {
+    fun formatTransactions(transactions: List<TransactionDBModel>): List<TransactionFormatted> {
 
         val formattedTransaction = ArrayList<TransactionFormatted>()
 
@@ -49,7 +50,7 @@ class TransactionModelMapperImpl : TransactionModelMapper<List<Transaction>, Res
             Response(Status.SUCCESS, transactions)
 
         if (transactions.isEmpty()) {
-            response.status = Status.ERROR
+            response.status = Status.LOADING
         }
 
         return response

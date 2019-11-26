@@ -7,7 +7,7 @@ import com.example.hamid.wallet.presentation.ui.viewmodel.TransactionViewModel
 import com.hamid.data.WalletRepositoryImpl
 import com.hamid.domain.model.model.Status
 import com.hamid.domain.model.usecases.WalletUseCase
-import com.hamid.domain.model.utils.helper.MockResponse
+import com.hamid.data.utils.helper.MockResponseForPresentation
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.only
@@ -43,7 +43,7 @@ class ViewModelTest {
 
         `when`(
             repo.getTransactionsFromDb()
-        ).thenReturn(Flowable.just(MockResponse.responseSuccess))
+        ).thenReturn(Flowable.just(MockResponseForPresentation.responseSuccess))
 
         walletUseCase = WalletUseCase(repo)
         viewModel = TransactionViewModel(walletUseCase)
@@ -90,19 +90,13 @@ class ViewModelTest {
 
         `when`(
             repo.getTransactionsFromDb()
-        ).thenReturn(Flowable.just(MockResponse.responseFailure))
+        ).thenReturn(Flowable.just(MockResponseForPresentation.responseLoading))
 
         viewModel.getData()
 
         viewModel.formattedList.observeForTesting {
             Assert.assertTrue(viewModel.formattedList.value!!.status == Status.ERROR)
         }
-    }
-
-    @Test
-    fun clearDisposable_callsClearDisposableFromDomain() {
-        viewModel.onCleared()
-        verify(repo, atLeastOnce()).clearDisposable()
     }
 
     @Test

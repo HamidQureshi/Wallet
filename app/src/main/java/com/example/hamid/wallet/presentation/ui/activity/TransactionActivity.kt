@@ -49,12 +49,24 @@ class TransactionActivity : AppCompatActivity() {
 
         viewModel.formattedList.observe(this, Observer { transaction ->
 
-            if (transaction.status == Status.SUCCESS) {
-                tv_balance.text = viewModel.getBalance()
-                progress_bar.visibility = View.GONE
-                itemListAdapter.setAdapterList(transaction!!.data)
-            } else {
-                progress_bar.visibility = View.VISIBLE
+
+            progress_bar.visibility = View.GONE
+
+            when {
+                transaction.status == Status.SUCCESS -> {
+                    tv_balance.text = viewModel.getBalance()
+                    itemListAdapter.setAdapterList(transaction!!.data)
+                    progress_bar.visibility = View.GONE
+                    tv_lbl_error.visibility = View.GONE
+                }
+                transaction.status == Status.LOADING -> {
+                    progress_bar.visibility = View.VISIBLE
+                    tv_lbl_error.visibility = View.GONE
+                }
+                else -> {
+                    progress_bar.visibility = View.GONE
+                    tv_lbl_error.visibility = View.VISIBLE
+                }
             }
 
         })

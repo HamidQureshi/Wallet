@@ -66,12 +66,4 @@ class WalletUseCaseTest {
         assertFalse(balance.isNullOrEmpty())
     }
 
-    @Test
-    fun clearDisposable() {
-
-        useCase.clearDisposable()
-
-        verify(repo, only())
-            .clearDisposable()
-    }
 }

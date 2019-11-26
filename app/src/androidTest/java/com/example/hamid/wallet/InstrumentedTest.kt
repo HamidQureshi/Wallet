@@ -16,7 +16,7 @@ import com.hamid.data.WalletRepositoryImpl
 import com.hamid.data.local.db.TransactionDaoImpl
 import com.hamid.data.local.db.WalletRoomDatabase
 import com.hamid.data.local.sharedPref.WalletSharedPreference
-import com.hamid.data.model.TransactionModelMapperImpl
+import com.hamid.data.model.PresentationTransactionModelMapperImpl
 import com.hamid.data.remote.APIService
 import com.hamid.data.utils.EspressoIdlingResource
 import com.hamid.domain.model.model.Status
@@ -37,7 +37,7 @@ class InstrumentedTest {
     private lateinit var db: WalletRoomDatabase
     private lateinit var sharedPreference: WalletSharedPreference
     private lateinit var transactionDaoImpl: TransactionDaoImpl
-    private val mapper = TransactionModelMapperImpl()
+    private val mapper = PresentationTransactionModelMapperImpl()
     private lateinit var repositoryImpl: WalletRepositoryImpl
     private lateinit var walletUseCase: WalletUseCase
     private lateinit var viewModel: TransactionViewModel

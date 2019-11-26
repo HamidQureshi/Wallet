@@ -15,4 +15,6 @@
     <string name="lbl_amount">Amount:</string>
     <string name="placeholder_amount">-0.0 BTC</string>
 
+    <string name="placeholder_error">Something Went Wrong!</string>
+
 </resources>

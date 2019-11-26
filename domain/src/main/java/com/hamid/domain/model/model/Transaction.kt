@@ -1,12 +1,8 @@
-package com.hamid.data.model
+package com.hamid.domain.model.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
-@Entity(tableName = "transaction_table")
 data class Transaction(
-    @PrimaryKey
     @SerializedName("hash") val hash: String,
     @SerializedName("result") val result: Int,
     @SerializedName("time") val time: Long,

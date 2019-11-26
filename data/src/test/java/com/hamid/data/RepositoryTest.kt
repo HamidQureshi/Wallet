@@ -3,12 +3,14 @@ package com.hamid.data
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.hamid.data.local.db.TransactionDaoImpl
 import com.hamid.data.local.sharedPref.WalletSharedPreference
-import com.hamid.data.model.Transaction
-import com.hamid.data.model.TransactionModelMapperImpl
+import com.hamid.data.model.DBTransactionModelMapperImpl
+import com.hamid.data.model.PresentationTransactionModelMapperImpl
+import com.hamid.data.model.TransactionDBModel
 import com.hamid.data.remote.APIService
-import com.hamid.data.utils.helper.MockRepoResponse
+import com.hamid.data.utils.helper.MockApiRepoResponse
+import com.hamid.data.utils.helper.MockDBResponse
 import com.hamid.domain.model.utils.Constants
-import com.hamid.domain.model.utils.helper.MockResponse
+import com.hamid.data.utils.helper.MockResponseForPresentation
 import com.nhaarman.mockitokotlin2.*
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -38,7 +40,9 @@ class RepositoryTest {
         mock()
     private var sharedPreference: WalletSharedPreference =
         mock()
-    private var mapper: TransactionModelMapperImpl = mock()
+    private var mapperPresentation: PresentationTransactionModelMapperImpl = mock()
+
+    private var mapperDB: DBTransactionModelMapperImpl = mock()
 
     private lateinit var walletRepoImpl: WalletRepositoryImpl
 
@@ -51,27 +55,31 @@ class RepositoryTest {
         `when`(
             apiService.fetchTransactions(Constants.address)
         )
-            .thenReturn(Single.just(MockRepoResponse.response))
+            .thenReturn(Single.just(MockApiRepoResponse.response))
 
         `when`(
             transactionDAOImpl.getAllTransactions()
         )
-            .thenReturn(Flowable.just(MockRepoResponse.transactionResponseList))
+            .thenReturn(Flowable.just(MockDBResponse.transactionResponseList))
 
         `when`(
             sharedPreference.getBalance()
         ).thenReturn(balanceInSatoshi)
 
         `when`(
-            mapper.fromEntity(MockRepoResponse.transactionResponseList)
-        ).thenReturn(MockResponse.responseSuccess)
+            mapperDB.fromEntity(MockApiRepoResponse.transactionResponseList)
+        ).thenReturn(MockDBResponse.transactionResponseList)
 
         `when`(
-            mapper.convertToBTC(balanceInSatoshi)
+            mapperPresentation.fromEntity(MockDBResponse.transactionResponseList)
+        ).thenReturn(MockResponseForPresentation.responseSuccess)
+
+        `when`(
+            mapperPresentation.convertToBTC(balanceInSatoshi)
         ).thenReturn(balanceInBTC)
 
         walletRepoImpl =
-            WalletRepositoryImpl(apiService, transactionDAOImpl, sharedPreference, mapper)
+            WalletRepositoryImpl(apiService, transactionDAOImpl, sharedPreference, mapperDB, mapperPresentation)
     }
 
     @After
@@ -86,20 +94,15 @@ class RepositoryTest {
         verify(apiService, times(1))
             .fetchTransactions(any())
 
-        verify(sharedPreference, times(1))
-            .setBalance(any())
-
-        verify(transactionDAOImpl, times(1))
-            .insertAll(MockRepoResponse.transactionResponseList)
     }
 
     @Test
     fun insertTransactionListToDB_insertToDbCall() {
 
-        walletRepoImpl.insertTransactionsToDB(MockRepoResponse.transactionResponseList)
+        walletRepoImpl.insertTransactionsToDB(MockApiRepoResponse.transactionResponseList)
 
         verify(transactionDAOImpl, only())
-            .insertAll(MockRepoResponse.transactionResponseList)
+            .insertAll(MockDBResponse.transactionResponseList)
     }
 
     @Test
@@ -119,7 +122,7 @@ class RepositoryTest {
         verify(sharedPreference, only())
             .getBalance()
 
-        verify(mapper, only())
+        verify(mapperPresentation, only())
             .convertToBTC(any())
 
         assertFalse(balance.isNullOrEmpty())
@@ -144,29 +147,8 @@ class RepositoryTest {
     }
 
     @Test
-    fun clearDisposable_clearsDisposable() {
-
-        val disposableSize = walletRepoImpl.getDisposable().size()
-
-        assertTrue(disposableSize == 0)
-
-        walletRepoImpl.getTransactionsFromServer()
-
-        assertTrue(disposableSize + 1 == walletRepoImpl.getDisposable().size())
-
-        walletRepoImpl.clearDisposable()
-
-        assertTrue(0 == walletRepoImpl.getDisposable().size())
-
-        verify(sharedPreference, only())
-            .setBalance(any())
-
-
-    }
-
-    @Test
     fun getDataFromServer_returnsTransactions() {
-        val expectedValue = MockRepoResponse.response
+        val expectedValue = MockApiRepoResponse.response
 
         val actualValue = apiService.fetchTransactions(Constants.address)
             .test()
@@ -177,29 +159,33 @@ class RepositoryTest {
 
     @Test
     fun getAllTransactions_containsList() {
-        val expectedValue = MockRepoResponse.transactionResponseList
+        val expectedValue = MockDBResponse.transactionResponseList
 
         val actualValue = walletRepoImpl.getTransactionsFromDb()
             .test()
             .values()
 
-        assertEquals(mapper.fromEntity(expectedValue).data, actualValue[0].data)
+        assertEquals(mapperPresentation.fromEntity(expectedValue).data, actualValue[0].data)
 
     }
 
     @Test
     fun getAllTransactions_containsEmptyList() {
-        val expectedValue = emptyList<Transaction>()
+        val expectedValue = emptyList<TransactionDBModel>()
 
         `when`(
-            mapper.fromEntity(emptyList())
-        ).thenReturn(MockResponse.responseFailure)
+            mapperDB.fromEntity(emptyList())
+        ).thenReturn(emptyList())
+
+        `when`(
+            mapperPresentation.fromEntity(emptyList())
+        ).thenReturn(MockResponseForPresentation.responseLoading)
 
         `when`(transactionDAOImpl.getAllTransactions())
             .thenReturn(Flowable.just(expectedValue))
 
         walletRepoImpl =
-            WalletRepositoryImpl(apiService, transactionDAOImpl, sharedPreference, mapper)
+            WalletRepositoryImpl(apiService, transactionDAOImpl, sharedPreference, mapperDB, mapperPresentation)
 
         val actualValue = walletRepoImpl.getTransactionsFromDb()
             .test()
@@ -233,7 +219,7 @@ class RepositoryTest {
             .test()
             .values()
 
-        assertEquals(apiData[0].transactions, dbData[0])
+        assertEquals(mapperDB.fromEntity(apiData[0].transactions), dbData[0])
     }
 
     @Test
@@ -244,7 +230,7 @@ class RepositoryTest {
             .values()
 
         assertEquals(
-            mapper.fromEntity(MockRepoResponse.transactionResponseList).data,
+            mapperPresentation.fromEntity(MockDBResponse.transactionResponseList).data,
             actualValue[0].data
         )
 

@@ -1,4 +1,4 @@
-package com.hamid.data.model
+package com.hamid.domain.model.model
 
 import com.google.gson.annotations.SerializedName
 

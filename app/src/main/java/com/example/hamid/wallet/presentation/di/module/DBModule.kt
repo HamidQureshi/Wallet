@@ -7,7 +7,8 @@ import com.hamid.data.WalletRepositoryImpl
 import com.hamid.data.local.db.TransactionDaoImpl
 import com.hamid.data.local.db.WalletRoomDatabase
 import com.hamid.data.local.sharedPref.WalletSharedPreference
-import com.hamid.data.model.TransactionModelMapperImpl
+import com.hamid.data.model.DBTransactionModelMapperImpl
+import com.hamid.data.model.PresentationTransactionModelMapperImpl
 import com.hamid.data.remote.APIService
 import com.hamid.domain.model.repository.WalletRepository
 import com.hamid.domain.model.usecases.WalletUseCase
@@ -42,16 +43,21 @@ class DBModule {
 
     @Singleton
     @Provides
-    fun provideModelMapper() = TransactionModelMapperImpl()
+    fun provideDBModelMapper() = DBTransactionModelMapperImpl()
+
+    @Singleton
+    @Provides
+    fun providePresentationModelMapper() = PresentationTransactionModelMapperImpl()
 
     @Provides
     @Singleton
-    fun provideRepository(@NonNull apiService: APIService, @NonNull transactionDaoImpl: TransactionDaoImpl, @NonNull sharedPreference: WalletSharedPreference, @NonNull mapper: TransactionModelMapperImpl): WalletRepository {
+    fun provideRepository(@NonNull apiService: APIService, @NonNull transactionDaoImpl: TransactionDaoImpl, @NonNull sharedPreference: WalletSharedPreference, @NonNull mapperDB: DBTransactionModelMapperImpl, @NonNull mapperPresentation: PresentationTransactionModelMapperImpl): WalletRepository {
         return WalletRepositoryImpl(
             apiService,
             transactionDaoImpl,
             sharedPreference,
-            mapper
+            mapperDB,
+            mapperPresentation
         )
     }
 
