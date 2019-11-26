@@ -9,10 +9,7 @@ import com.hamid.data.utils.helper.MockApiResponse
 import com.hamid.domain.model.model.Status
 import com.hamid.domain.model.usecases.WalletUseCase
 import com.hamid.data.utils.helper.MockResponseForPresentation
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.only
-import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.*
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.android.plugins.RxAndroidPlugins
@@ -34,9 +31,7 @@ class ViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
-    private val repo: WalletRepositoryImpl = mock()
-
-    private lateinit var walletUseCase: WalletUseCase
+    private var walletUseCase: WalletUseCase = mock()
     private lateinit var viewModel: TransactionViewModel
 
 
@@ -45,14 +40,14 @@ class ViewModelTest {
     fun setUp() {
 
         `when`(
-            repo.getTransactionsFromDb()
+            walletUseCase.getTransactionsFromDb()
         ).thenReturn(Flowable.just(MockResponseForPresentation.responseSuccess))
 
         `when`(
-            repo.getTransactionsFromServer()
+            walletUseCase.getTransactionsFromServer()
         ).thenReturn(Single.just(MockApiResponse.response))
 
-        walletUseCase = WalletUseCase(repo)
+//        walletUseCase = WalletUseCase(repo)
         viewModel = TransactionViewModel(walletUseCase)
 
     }
@@ -66,19 +61,20 @@ class ViewModelTest {
     @Test
     fun getData_getDataFromDomainCalled() {
         viewModel.getData()
-        verify(repo, only()).getTransactionsFromDb()
+        verify(walletUseCase, only()).getTransactionsFromDb()
     }
 
     @Test
     fun getBalance_getBalanceFromDomainCalled() {
         viewModel.getBalance()
-        verify(repo, only()).getBalance()
+        verify(walletUseCase, only()).getBalance()
     }
 
     @Test
     fun getTransactionsFromServer_callsMethods() {
         viewModel.getTransactionsFromServer()
-        verify(repo, only()).getBalance()
+        verify(walletUseCase, times(1)).setBalance(any())
+        verify(walletUseCase, times(1)).insertTransactionsToDB(any())
     }
 
     @Test
@@ -113,13 +109,13 @@ class ViewModelTest {
     fun verifyLiveData_StatusError() {
 
         `when`(
-            repo.getTransactionsFromDb()
+            walletUseCase.getTransactionsFromDb()
         ).thenReturn(Flowable.just(MockResponseForPresentation.responseLoading))
 
         viewModel.getData()
 
         viewModel.formattedList.observeForTesting {
-            Assert.assertTrue(viewModel.formattedList.value!!.status == Status.ERROR)
+            Assert.assertTrue(viewModel.formattedList.value!!.status == Status.LOADING)
         }
     }
 
