@@ -21,6 +21,10 @@ class MockResponseForPresentation {
             Status.SUCCESS,
             formattedList
         )
-        val responseLoading = Response(Status.LOADING, emptyList())
+
+        val responseLoading = Response(
+            Status.LOADING,
+            emptyList()
+        )
     }
 }

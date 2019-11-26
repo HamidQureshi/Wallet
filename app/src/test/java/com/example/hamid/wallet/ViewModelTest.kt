@@ -47,7 +47,6 @@ class ViewModelTest {
             walletUseCase.getTransactionsFromServer()
         ).thenReturn(Single.just(MockApiResponse.response))
 
-//        walletUseCase = WalletUseCase(repo)
         viewModel = TransactionViewModel(walletUseCase)
 
     }
@@ -79,13 +78,55 @@ class ViewModelTest {
 
     @Test
     fun getTransactionsFromServer_returnsSuccessResponse() {
+        viewModel.getData()
+
+        viewModel.formattedList.observeForTesting {
+            assert(viewModel.formattedList.value!!.status == Status.SUCCESS)
+            assert(viewModel.formattedList.value!!.data.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun getTransactionsFromServer_returnsLoadingResponse() {
+
+        `when`(
+            walletUseCase.getTransactionsFromDb()
+        ).thenReturn(Flowable.just(MockResponseForPresentation.responseLoading))
+
+        `when`(
+            walletUseCase.getTransactionsFromServer()
+        ).thenReturn(Single.error(Exception()))
+
+        viewModel = TransactionViewModel(walletUseCase)
+
+        viewModel.getData()
+
+        viewModel.formattedList.observeForTesting {
+               assert(viewModel.formattedList.value!!.status == Status.LOADING)
+               assert(viewModel.formattedList.value!!.data.isEmpty())
+         }
+    }
+
+    @Test
+    fun getTransactionsFromServer_returnsErrorResponse() {
+
+        `when`(
+            walletUseCase.getTransactionsFromDb()
+        ).thenReturn(Flowable.just(MockResponseForPresentation.responseLoading))
+
+        `when`(
+            walletUseCase.getTransactionsFromServer()
+        ).thenReturn(Single.error(Exception()))
+
+        viewModel = TransactionViewModel(walletUseCase)
+
+        viewModel.getData()
         viewModel.getTransactionsFromServer()
 
-        val value = walletUseCase.getTransactionsFromServer()
-            .test()
-            .values()
-
-        assert(value.size > 0)
+        viewModel.formattedList.observeForTesting {
+            assert(viewModel.formattedList.value!!.status == Status.ERROR)
+            assert(viewModel.formattedList.value!!.data.isEmpty())
+        }
     }
 
     @Test
