@@ -4,7 +4,7 @@ import com.hamid.domain.model.model.RemoteApiResponse
 import com.hamid.domain.model.model.Transaction
 import com.hamid.domain.model.model.Wallet
 
-class MockApiRepoResponse {
+class MockApiResponse {
     companion object {
 
         private val transaction1 = Transaction(

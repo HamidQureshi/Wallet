@@ -5,7 +5,6 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.hamid.data.local.db.TransactionDaoImpl
 import com.hamid.data.local.db.WalletRoomDatabase
-import com.hamid.data.utils.helper.MockApiRepoResponse
 import com.hamid.data.utils.helper.MockDBResponse
 import org.junit.*
 

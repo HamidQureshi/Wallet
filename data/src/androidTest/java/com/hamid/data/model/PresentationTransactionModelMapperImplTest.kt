@@ -1,7 +1,7 @@
 package com.hamid.data.model
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.hamid.data.utils.helper.MockApiRepoResponse
+import com.hamid.data.utils.helper.MockApiResponse
 import com.hamid.data.utils.helper.MockDBResponse
 import com.hamid.data.utils.helper.MockResponseForPresentation
 import org.junit.Assert.assertEquals
@@ -51,8 +51,8 @@ class PresentationTransactionModelMapperImplTest {
             mapper.formatTransactions(MockDBResponse.transactionResponseList)
 
         assertEquals(MockResponseForPresentation.formattedList, transactionsFormatted)
-        assert(transactionsFormatted[0].inflow == MockApiRepoResponse.transactionResponseList[0].result > 0)
-        assert(transactionsFormatted[1].inflow == MockApiRepoResponse.transactionResponseList[1].result > 0)
+        assert(transactionsFormatted[0].inflow == MockApiResponse.transactionResponseList[0].result > 0)
+        assert(transactionsFormatted[1].inflow == MockApiResponse.transactionResponseList[1].result > 0)
     }
 
     @Test

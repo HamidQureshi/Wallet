@@ -46,7 +46,7 @@ constructor(
 
     }
 
-    private fun getTransactionsFromServer() {
+    fun getTransactionsFromServer() {
         EspressoIdlingResource.increment()
         compositeDisposable.add(
             walletUseCase.getTransactionsFromServer()

@@ -5,14 +5,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.example.hamid.wallet.presentation.ui.viewmodel.TransactionViewModel
 import com.hamid.data.WalletRepositoryImpl
+import com.hamid.data.utils.helper.MockApiResponse
 import com.hamid.domain.model.model.Status
 import com.hamid.domain.model.usecases.WalletUseCase
 import com.hamid.data.utils.helper.MockResponseForPresentation
-import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.only
 import com.nhaarman.mockitokotlin2.verify
 import io.reactivex.Flowable
+import io.reactivex.Single
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
@@ -21,6 +23,7 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import org.mockito.Mockito.`when`
+import retrofit2.HttpException
 
 
 class ViewModelTest {
@@ -45,6 +48,10 @@ class ViewModelTest {
             repo.getTransactionsFromDb()
         ).thenReturn(Flowable.just(MockResponseForPresentation.responseSuccess))
 
+        `when`(
+            repo.getTransactionsFromServer()
+        ).thenReturn(Single.just(MockApiResponse.response))
+
         walletUseCase = WalletUseCase(repo)
         viewModel = TransactionViewModel(walletUseCase)
 
@@ -66,6 +73,23 @@ class ViewModelTest {
     fun getBalance_getBalanceFromDomainCalled() {
         viewModel.getBalance()
         verify(repo, only()).getBalance()
+    }
+
+    @Test
+    fun getTransactionsFromServer_callsMethods() {
+        viewModel.getTransactionsFromServer()
+        verify(repo, only()).getBalance()
+    }
+
+    @Test
+    fun getTransactionsFromServer_returnsSuccessResponse() {
+        viewModel.getTransactionsFromServer()
+
+        val value = walletUseCase.getTransactionsFromServer()
+            .test()
+            .values()
+
+        assert(value.size > 0)
     }
 
     @Test

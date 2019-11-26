@@ -10,7 +10,7 @@ import com.hamid.data.local.sharedPref.WalletSharedPreference
 import com.hamid.data.model.DBTransactionModelMapperImpl
 import com.hamid.data.model.PresentationTransactionModelMapperImpl
 import com.hamid.data.remote.APIService
-import com.hamid.data.utils.helper.MockApiRepoResponse
+import com.hamid.data.utils.helper.MockApiResponse
 import com.hamid.data.utils.helper.MockDBResponse
 import com.hamid.domain.model.usecases.WalletUseCase
 import com.hamid.domain.model.utils.Constants
@@ -48,14 +48,14 @@ class IntegrationUnitTest {
 
         `when`(
             apiService.fetchTransactions(Constants.address)
-        ).thenReturn(Single.just(MockApiRepoResponse.response))
+        ).thenReturn(Single.just(MockApiResponse.response))
 
         `when`(
             transactionDAOImpl.getAllTransactions()
         ).thenReturn(Flowable.just(MockDBResponse.transactionResponseList))
 
         `when`(
-            mapperDB.fromEntity(MockApiRepoResponse.transactionResponseList)
+            mapperDB.fromEntity(MockApiResponse.transactionResponseList)
         ).thenReturn(MockDBResponse.transactionResponseList)
 
         `when`(

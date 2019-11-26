@@ -7,7 +7,7 @@ import com.hamid.data.model.DBTransactionModelMapperImpl
 import com.hamid.data.model.PresentationTransactionModelMapperImpl
 import com.hamid.data.model.TransactionDBModel
 import com.hamid.data.remote.APIService
-import com.hamid.data.utils.helper.MockApiRepoResponse
+import com.hamid.data.utils.helper.MockApiResponse
 import com.hamid.data.utils.helper.MockDBResponse
 import com.hamid.domain.model.utils.Constants
 import com.hamid.data.utils.helper.MockResponseForPresentation
@@ -55,7 +55,7 @@ class RepositoryTest {
         `when`(
             apiService.fetchTransactions(Constants.address)
         )
-            .thenReturn(Single.just(MockApiRepoResponse.response))
+            .thenReturn(Single.just(MockApiResponse.response))
 
         `when`(
             transactionDAOImpl.getAllTransactions()
@@ -67,7 +67,7 @@ class RepositoryTest {
         ).thenReturn(balanceInSatoshi)
 
         `when`(
-            mapperDB.fromEntity(MockApiRepoResponse.transactionResponseList)
+            mapperDB.fromEntity(MockApiResponse.transactionResponseList)
         ).thenReturn(MockDBResponse.transactionResponseList)
 
         `when`(
@@ -99,7 +99,7 @@ class RepositoryTest {
     @Test
     fun insertTransactionListToDB_insertToDbCall() {
 
-        walletRepoImpl.insertTransactionsToDB(MockApiRepoResponse.transactionResponseList)
+        walletRepoImpl.insertTransactionsToDB(MockApiResponse.transactionResponseList)
 
         verify(transactionDAOImpl, only())
             .insertAll(MockDBResponse.transactionResponseList)
@@ -148,7 +148,7 @@ class RepositoryTest {
 
     @Test
     fun getDataFromServer_returnsTransactions() {
-        val expectedValue = MockApiRepoResponse.response
+        val expectedValue = MockApiResponse.response
 
         val actualValue = apiService.fetchTransactions(Constants.address)
             .test()
